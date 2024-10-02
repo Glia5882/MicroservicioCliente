@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: microservicio-cliente
+  config:
+    import: configserver:http://localhost:8888
+  
