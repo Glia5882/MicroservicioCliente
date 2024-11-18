@@ -26,6 +26,7 @@ public class Cliente_service {
 
     // Crear un nuevo cliente
     public Cliente_dto crearCliente(Cliente_dto clienteDto) {
+        validarCliente(clienteDto);
         Cliente cliente = modelMapper.map(clienteDto, Cliente.class); // Convertir DTO a entidad
         Cliente nuevoCliente = cliente_Repository.save(cliente); // Guardar en la base de datos
         return modelMapper.map(nuevoCliente, Cliente_dto.class); // Convertir de nuevo a DTO
@@ -49,7 +50,7 @@ public class Cliente_service {
     }
     
     // Actualizar un cliente existente por ID
-public Cliente_dto actualizarCliente(Long id, Cliente_dto clienteDto) {
+    public Cliente_dto actualizarCliente(Long id, Cliente_dto clienteDto) {
     Optional<Cliente> clienteExistente = cliente_Repository.findById(id);
 
     if (clienteExistente.isPresent()) {
@@ -63,7 +64,7 @@ public Cliente_dto actualizarCliente(Long id, Cliente_dto clienteDto) {
     }
 
     return null; // Devuelve null si no se encuentra el cliente
-}
+    }
 
     // Eliminar un cliente por nombre (ID)
     public boolean eliminarCliente(Long id) {
@@ -74,12 +75,56 @@ public Cliente_dto actualizarCliente(Long id, Cliente_dto clienteDto) {
         return false;
     }
 
-    // Método de autenticación básico (esto se puede mejorar mucho más con Spring Security)
+    // Buscar clientes por nombre
+    public List<Cliente_dto> buscarClientesPorNombre(String nombre) {
+        return cliente_Repository.findByNombreContainingIgnoreCase(nombre).stream()
+                .map(cliente -> modelMapper.map(cliente, Cliente_dto.class))
+                .collect(Collectors.toList());
+    }
+
+    // Autenticación mejorada
+    public boolean autenticarCliente(Long id, String foto) {
+        return cliente_Repository.findById(id)
+                .map(cliente -> cliente.getFoto().equals(foto))
+                .orElse(false);
+    }
+
+    // Método de autenticación básico 
     public boolean autenticarCliente(Long id, String foto) {
         Optional<Cliente> cliente = cliente_Repository.findById(id);
         if (cliente.isPresent()) {
-            return cliente.get().getFoto().equals(foto); // Solo un ejemplo sencillo
+            return cliente.get().getFoto().equals(foto); 
         }
         return false;
     }
+
+        // Método privado para validar cliente
+    private void validarCliente(Cliente_dto clienteDto) {
+        if (clienteDto.getNombre() == null || clienteDto.getNombre().isEmpty()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío.");
+        }
+        if (clienteDto.getEdad() <= 0) {
+            throw new IllegalArgumentException("La edad debe ser mayor a 0.");
+        }
+        if (clienteDto.getFoto() != null && clienteDto.getFoto().length() > 255) {
+            throw new IllegalArgumentException("La URL de la foto es demasiado larga.");
+        }
+        if (clienteDto.getDescripcion() != null && clienteDto.getDescripcion().length() > 500) {
+            throw new IllegalArgumentException("La descripción es demasiado larga.");
+        }
+    }
+
+    // Verificar si un cliente existe por su ID
+    public boolean verificarCliente(Long clienteId) {
+        return cliente_Repository.existsById(clienteId);
+    }
+
+    public Calificacion crearCalificacion(Calificacion calificacion, Calificacion_service calificacionService) {
+        // Verifica si el cliente asociado a la calificación existe
+        if (!verificarCliente(calificacion.getClienteId())) {
+            throw new IllegalArgumentException("El cliente no existe");
+        }
+        return calificacionService.crearCalificacion(calificacion);
+    }
+
 }
