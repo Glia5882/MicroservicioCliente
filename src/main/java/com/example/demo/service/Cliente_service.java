@@ -74,12 +74,13 @@ public Cliente_dto actualizarCliente(Long id, Cliente_dto clienteDto) {
         return false;
     }
 
-    // Método de autenticación básico (esto se puede mejorar mucho más con Spring Security)
     public boolean autenticarCliente(Long id, String foto) {
         Optional<Cliente> cliente = cliente_Repository.findById(id);
         if (cliente.isPresent()) {
-            return cliente.get().getFoto().equals(foto); // Solo un ejemplo sencillo
+            return cliente.get().getFoto().equals(foto); 
         }
         return false;
     }
+
+
 }

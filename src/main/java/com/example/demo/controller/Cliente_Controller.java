@@ -56,18 +56,23 @@ public class Cliente_Controller {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Cliente_dto> obtenerCliente(@PathVariable Long id) {
+        Cliente_dto clienteDto = cliente_service.obtenerClientePorId(id);
+        return ResponseEntity.ok(clienteDto);
+    }
 
     // Actualizar un cliente existente por ID
-@PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-public ResponseEntity<Cliente_dto> actualizarCliente(@PathVariable("id") Long id, @RequestBody Cliente_dto clienteDto) {
-    Cliente_dto clienteActualizado = cliente_service.actualizarCliente(id, clienteDto);
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Cliente_dto> actualizarCliente(@PathVariable("id") Long id, @RequestBody Cliente_dto clienteDto) {
+        Cliente_dto clienteActualizado = cliente_service.actualizarCliente(id, clienteDto);
 
-    if (clienteActualizado != null) {
-        return new ResponseEntity<>(clienteActualizado, HttpStatus.OK);
-     } else {
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (clienteActualizado != null) {
+            return new ResponseEntity<>(clienteActualizado, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
         }
-    }
 
     // Eliminar un cliente por ID
     @DeleteMapping(value = "/{id}")
